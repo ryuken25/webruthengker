@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RootRewards Calculator</title>
+<style>
+  body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+  label {
+    display: block;
+    margin: 0.5rem 0 0.2rem 0;
+    font-weight: 600;
+  }
+  input[type="number"] {
+    width: 100%;
+    max-width: 120px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background-color: #111;
+    color: #fff;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: #0af;
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+  }
+  button:hover {
+    background-color: #08c;
+  }
+  .result {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .container {
+    width: 100%;
+    max-width: 400px;
+  }
+  @media (max-width: 450px) {
+    body {
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    button {
+      font-size: 1rem;
+      max-width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>RootRewards Bonus Calculator</h1>
+
+<div class="container">
+  <label for="days">Jumlah Hari:</label>
+  <input type="number" id="days" min="1" value="1" />
+
+  <label for="accounts">Jumlah Akun:</label>
+  <input type="number" id="accounts" min="1" value="1" />
+
+  <button id="calculateBtn">Hitung Total Bonus</button>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+  window.onload = function () {
+    alert("Join Root sekarang! Jangan lupa pakai referral gue ya.");
+  };
+
+  function hitungBonusPerHari(n) {
+    const bonusDasar = 25 * n;
+    const tambahanTetap = 2000;
+    const activity = 10;
+
+    const multiplierHari = {
+      10: 1.5,
+      15: 3,
+      30: 5
+    };
+
+    const multiplier = multiplierHari[n] || 1;
+    const bonusNormal = bonusDasar + tambahanTetap;
+    const bonusHari = bonusNormal * multiplier + activity;
+    return bonusHari;
+  }
+
+  function hitungTotalBonus(days, accounts) {
+    let total = 0;
+    for (let i = 1; i <= days; i++) {
+      total += hitungBonusPerHari(i);
+    }
+    return total * accounts;
+  }
+
+  const btn = document.getElementById("calculateBtn");
+  const resultDiv = document.getElementById("result");
+
+  btn.addEventListener("click", () => {
+    const days = parseInt(document.getElementById("days").value) || 1;
+    const accounts = parseInt(document.getElementById("accounts").value) || 1;
+
+    if (days < 1) {
+      alert("Jumlah hari harus minimal 1.");
+      return;
+    }
+    if (accounts < 1) {
+      alert("Jumlah akun harus minimal 1.");
+      return;
+    }
+
+    const totalBonus = hitungTotalBonus(days, accounts);
+    resultDiv.textContent = `Total bonus untuk ${accounts} akun selama ${days} hari adalah: ${totalBonus.toLocaleString()}`;
+  });
+</script>
+
+</body>
+</html>
