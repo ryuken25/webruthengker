@@ -58,6 +58,7 @@
     margin-top: 1.5rem;
     font-size: 1.2rem;
     font-weight: 700;
+    white-space: pre-line;
   }
   .container {
     width: 100%;
@@ -67,6 +68,32 @@
   canvas {
     max-width: 600px;
     margin-bottom: 2rem;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 1rem;
+  }
+  th, td {
+    border-bottom: 1px solid #fff;
+    padding: 6px;
+    text-align: left;
+  }
+  th {
+    font-weight: 600;
+  }
+  @media (max-width: 450px) {
+    body {
+      padding: 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    button {
+      font-size: 1rem;
+      max-width: 100%;
+    }
   }
 </style>
 </head>
@@ -84,12 +111,20 @@
   <button id="calculateBtn">Hitung Total Bonus</button>
 
   <div class="result" id="result"></div>
-  
-  <!-- Rate dan hasil perkalian dengan harga Root -->
-  <div class="rate-info" id="rateInfo" style="margin-top: 1rem; font-weight: 600;"></div>
+
+  <table id="rateTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Rate</th>
+        <th>Harga Root (IDR)</th>
+        <th>Point Root</th>
+        <th>Hasil (IDR)</th>
+      </tr>
+    </thead>
+    <tbody id="rateTableBody"></tbody>
+  </table>
 </div>
 
-<!-- Chart harga Root -->
 <canvas id="rootPriceChart"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -137,7 +172,6 @@
     try {
       const res = await fetch("https://api.coingecko.com/api/v3/coins/root/market_chart?vs_currency=idr&days=7&interval=daily");
       const data = await res.json();
-      // data.prices is array of [timestamp, price]
       return data.prices;
     } catch (e) {
       console.error("Gagal ambil data chart Root:", e);
@@ -148,6 +182,8 @@
   // Render chart harga Root
   async function renderChart() {
     const prices = await fetchRootPriceChart();
+    if (!prices.length) return;
+    
     const labels = prices.map(p => {
       const date = new Date(p[0]);
       return date.toLocaleDateString('id-ID', {month: 'short', day: 'numeric'});
@@ -182,8 +218,10 @@
     });
   }
 
-  // Setelah klik tombol hitung
-  document.getElementById('calculateBtn').addEventListener('click', async () => {
+  const btn = document.getElementById("calculateBtn");
+  const resultDiv = document.getElementById("result");
+
+  btn.addEventListener("click", async () => {
     const days = parseInt(document.getElementById("days").value) || 1;
     const accounts = parseInt(document.getElementById("accounts").value) || 1;
 
@@ -197,34 +235,35 @@
     }
 
     const totalBonus = hitungTotalBonus(days, accounts);
-    document.getElementById('result').textContent = 
-      `Total bonus untuk ${accounts} akun selama ${days} hari adalah: ${totalBonus.toLocaleString()}`;
+    resultDiv.textContent = `Total bonus untuk ${accounts} akun selama ${days} hari adalah: ${totalBonus.toLocaleString()}`;
 
-    // Ambil harga Root terbaru
     const rootPrice = await fetchRootPrice();
-
     if (rootPrice === null) {
-      document.getElementById('rateInfo').textContent = "Gagal mengambil harga Root.";
+      resultDiv.textContent += "\nGagal mengambil harga Root.";
       return;
     }
 
-    // Tampilkan rate dan perhitungannya
-    const rate1 = 0.007;
-    const rate2 = 0.008;
+    const rates = [0.008, 0.0075];
 
-    const total1 = rate1 * rootPrice;
-    const total2 = rate2 * rootPrice;
+    const table = document.getElementById('rateTable');
+    const tbody = document.getElementById('rateTableBody');
+    tbody.innerHTML = ""; // reset
+    table.style.display = "table";
 
-    document.getElementById('rateInfo').innerHTML = `
-      Rate 1: ${rate1} <br>
-      Rate 2: ${rate2} <br>
-      <br>
-      Rate 1 x Harga Root IDR: ${total1.toLocaleString('id-ID', {style:'currency', currency:'IDR'})} <br>
-      Rate 2 x Harga Root IDR: ${total2.toLocaleString('id-ID', {style:'currency', currency:'IDR'})}
-    `;
+    rates.forEach(rate => {
+      const hasil = totalBonus * rate * rootPrice;
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${rate}</td>
+        <td>${rootPrice.toLocaleString('id-ID', {style:'currency', currency:'IDR'})}</td>
+        <td>${totalBonus.toLocaleString()}</td>
+        <td><b>${hasil.toLocaleString('id-ID', {style:'currency', currency:'IDR'})}</b></td>
+      `;
+      tbody.appendChild(tr);
+    });
   });
 
-  // Load chart pas halaman dibuka
   window.onload = function () {
     alert("Join Root sekarang! Jangan lupa pakai referral gue ya.");
     renderChart();
