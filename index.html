@@ -68,6 +68,8 @@
   canvas {
     max-width: 600px;
     margin-bottom: 2rem;
+    background-color: #111;
+    border-radius: 8px;
   }
   table {
     border-collapse: collapse;
@@ -125,11 +127,10 @@
   </table>
 </div>
 
-<canvas id="rootPriceChart"></canvas>
+<canvas id="rootPriceChart" width="600" height="300"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Fungsi hitung bonus per hari
   function hitungBonusPerHari(n) {
     const bonusDasar = 25 * n;
     const tambahanTetap = 2000;
@@ -155,22 +156,20 @@
     return total * accounts;
   }
 
-  // Ambil harga Root IDR dari CoinGecko API (public)
   async function fetchRootPrice() {
     try {
-      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=root&vs_currencies=idr");
+      const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=the-root-network&vs_currencies=idr");
       const data = await res.json();
-      return data.root.idr;
+      return data["the-root-network"].idr;
     } catch (e) {
       console.error("Gagal ambil harga Root:", e);
       return null;
     }
   }
 
-  // Ambil data harga Root untuk 7 hari terakhir (chart)
   async function fetchRootPriceChart() {
     try {
-      const res = await fetch("https://api.coingecko.com/api/v3/coins/root/market_chart?vs_currency=idr&days=7&interval=daily");
+      const res = await fetch("https://api.coingecko.com/api/v3/coins/the-root-network/market_chart?vs_currency=idr&days=7&interval=daily");
       const data = await res.json();
       return data.prices;
     } catch (e) {
@@ -179,18 +178,23 @@
     }
   }
 
-  // Render chart harga Root
   async function renderChart() {
     const prices = await fetchRootPriceChart();
-    if (!prices.length) return;
-    
+    const ctx = document.getElementById('rootPriceChart').getContext('2d');
+
+    if (!prices.length) {
+      ctx.font = '16px Arial';
+      ctx.fillStyle = 'white';
+      ctx.fillText('Gagal mengambil data harga Root 7 hari terakhir', 10, 50);
+      return;
+    }
+
     const labels = prices.map(p => {
       const date = new Date(p[0]);
       return date.toLocaleDateString('id-ID', {month: 'short', day: 'numeric'});
     });
     const data = prices.map(p => p[1]);
 
-    const ctx = document.getElementById('rootPriceChart').getContext('2d');
     new Chart(ctx, {
       type: 'line',
       data: {
