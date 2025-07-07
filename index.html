@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RootRewards Calculator</title>
 <style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
   body {
     background-color: #000;
     color: #fff;
@@ -13,9 +17,31 @@
     padding: 1.5rem;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
   }
+
+  /* Container utama untuk landscape potrait */
+  .main-container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 900px;
+    width: 100%;
+    gap: 2rem;
+  }
+
+  /* Form container */
+  .form-container {
+    flex: 1 1 380px;
+    max-width: 400px;
+  }
+
+  /* Chart container */
+  .chart-container {
+    flex: 1 1 480px;
+    max-width: 480px;
+  }
+
   h1 {
     font-weight: 700;
     margin-bottom: 1rem;
@@ -28,14 +54,12 @@
   }
   input[type="number"] {
     width: 100%;
-    max-width: 120px;
     padding: 0.5rem;
     font-size: 1rem;
     border-radius: 6px;
     border: none;
     background-color: #111;
     color: #fff;
-    box-sizing: border-box;
   }
   button {
     margin-top: 1rem;
@@ -49,7 +73,6 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     width: 100%;
-    max-width: 200px;
   }
   button:hover {
     background-color: #08c;
@@ -60,19 +83,9 @@
     font-weight: 700;
     white-space: pre-line;
   }
-  .container {
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 2rem;
-  }
-  canvas {
-    max-width: 600px;
-    margin-bottom: 2rem;
-  }
   table {
     border-collapse: collapse;
     width: 100%;
-    max-width: 400px;
     margin-top: 1rem;
   }
   th, td {
@@ -83,68 +96,84 @@
   th {
     font-weight: 600;
   }
-  @media (max-width: 450px) {
+
+  /* Canvas chart */
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    background-color: #111;
+    border-radius: 8px;
+  }
+
+  /* Responsive portrait for small devices */
+  @media (max-width: 600px) {
     body {
       padding: 1rem;
+    }
+    .main-container {
+      flex-direction: column;
+      max-width: 100%;
+      gap: 1.5rem;
+    }
+    .form-container, .chart-container {
+      max-width: 100%;
+      flex-basis: 100%;
     }
     h1 {
       font-size: 1.5rem;
     }
     button {
       font-size: 1rem;
-      max-width: 100%;
     }
   }
 </style>
 </head>
 <body>
 
-<h1>RootRewards Bonus Calculator</h1>
+<div class="main-container">
 
-<div class="container">
-  <label for="days">Jumlah Hari:</label>
-  <input type="number" id="days" min="1" value="1" />
+  <div class="form-container">
+    <h1>RootRewards Bonus Calculator</h1>
 
-  <label for="accounts">Jumlah Akun:</label>
-  <input type="number" id="accounts" min="1" value="1" />
+    <label for="days">Jumlah Hari:</label>
+    <input type="number" id="days" min="1" value="1" />
 
-  <button id="calculateBtn">Hitung Total Bonus</button>
+    <label for="accounts">Jumlah Akun:</label>
+    <input type="number" id="accounts" min="1" value="1" />
 
-  <div class="result" id="result"></div>
+    <button id="calculateBtn">Hitung Total Bonus</button>
 
-  <table id="rateTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Rate</th>
-        <th>Harga Root (IDR)</th>
-        <th>Point Root</th>
-        <th>Hasil (IDR)</th>
-      </tr>
-    </thead>
-    <tbody id="rateTableBody"></tbody>
-  </table>
+    <div class="result" id="result"></div>
+
+    <table id="rateTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Rate</th>
+          <th>Harga Root (IDR)</th>
+          <th>Point Root</th>
+          <th>Hasil (IDR)</th>
+        </tr>
+      </thead>
+      <tbody id="rateTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="rootPriceChart"></canvas>
+  </div>
+
 </div>
-
-<canvas id="rootPriceChart"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Fungsi hitung bonus per hari
   function hitungBonusPerHari(n) {
     const bonusDasar = 25 * n;
     const tambahanTetap = 2000;
     const activity = 10;
-
-    const multiplierHari = {
-      10: 1.5,
-      15: 3,
-      30: 5
-    };
-
+    const multiplierHari = {10: 1.5, 15: 3, 30: 5};
     const multiplier = multiplierHari[n] || 1;
     const bonusNormal = bonusDasar + tambahanTetap;
-    const bonusHari = bonusNormal * multiplier + activity;
-    return bonusHari;
+    return bonusNormal * multiplier + activity;
   }
 
   function hitungTotalBonus(days, accounts) {
@@ -155,7 +184,6 @@
     return total * accounts;
   }
 
-  // Ambil harga Root IDR dari CoinGecko API (public)
   async function fetchRootPrice() {
     try {
       const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=the-root-network&vs_currencies=idr");
@@ -167,7 +195,6 @@
     }
   }
 
-  // Ambil data harga Root untuk 7 hari terakhir (chart)
   async function fetchRootPriceChart() {
     try {
       const res = await fetch("https://api.coingecko.com/api/v3/coins/the-root-network/market_chart?vs_currency=idr&days=7&interval=daily");
@@ -179,40 +206,68 @@
     }
   }
 
-  // Render chart harga Root
+  let chartInstance = null;
+
   async function renderChart() {
     const prices = await fetchRootPriceChart();
     if (!prices.length) return;
-    
-    const labels = prices.map(p => {
-      const date = new Date(p[0]);
-      return date.toLocaleDateString('id-ID', {month: 'short', day: 'numeric'});
-    });
+
+    const labels = prices.map(p => new Date(p[0]).toLocaleDateString('id-ID', {month: 'short', day: 'numeric'}));
     const data = prices.map(p => p[1]);
 
     const ctx = document.getElementById('rootPriceChart').getContext('2d');
-    new Chart(ctx, {
+
+    // Jika chart sudah ada, destroy dulu biar update data
+    if(chartInstance) {
+      chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
         datasets: [{
           label: 'Harga Root (IDR)',
           data: data,
-          borderColor: 'cyan',
-          backgroundColor: 'rgba(0,255,255,0.1)',
+          borderColor: '#00ffff', // cyan biru terang
+          backgroundColor: 'rgba(0, 255, 255, 0.15)',
           fill: true,
           tension: 0.3,
-          pointRadius: 3,
+          pointRadius: 5,
+          pointBackgroundColor: '#00ffff',
+          pointHoverRadius: 7,
+          borderWidth: 2,
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: false,
             ticks: {
-              callback: value => value.toLocaleString('id-ID', {style:'currency', currency:'IDR'})
+              callback: val => val.toLocaleString('id-ID', {style:'currency', currency:'IDR'})
             }
           }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#00ffff',
+              font: { weight: 'bold' }
+            }
+          },
+          tooltip: {
+            mode: 'nearest',
+            intersect: false,
+            callbacks: {
+              label: ctx => ctx.parsed.y.toLocaleString('id-ID', {style:'currency', currency:'IDR'})
+            }
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          intersect: false
         }
       }
     });
@@ -244,7 +299,6 @@
     }
 
     const rates = [0.008, 0.0075];
-
     const table = document.getElementById('rateTable');
     const tbody = document.getElementById('rateTableBody');
     tbody.innerHTML = ""; // reset
@@ -264,7 +318,7 @@
     });
   });
 
-  window.onload = function () {
+  window.onload = () => {
     alert("Join Root sekarang! Jangan lupa pakai referral gue ya.");
     renderChart();
   };
