@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RootRewards Calculator</title>
 <style>
-  /* Reset & base */
   * {
     box-sizing: border-box;
   }
@@ -20,28 +19,23 @@
     justify-content: center;
     align-items: flex-start;
   }
-
-  /* Container utama untuk landscape potrait */
   .main-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     max-width: 900px;
     width: 100%;
     gap: 2rem;
   }
-
-  /* Form container */
   .form-container {
-    flex: 1 1 380px;
-    max-width: 400px;
+    flex-grow: 1;
+    min-width: 0;
+    max-width: none;
   }
-
-  /* Chart container */
   .chart-container {
-    flex: 1 1 480px;
-    max-width: 480px;
+    width: 480px;
+    height: 320px;
+    flex-shrink: 0;
   }
-
   h1 {
     font-weight: 700;
     margin-bottom: 1rem;
@@ -96,16 +90,12 @@
   th {
     font-weight: 600;
   }
-
-  /* Canvas chart */
   canvas {
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     background-color: #111;
     border-radius: 8px;
   }
-
-  /* Responsive portrait for small devices */
   @media (max-width: 600px) {
     body {
       padding: 1rem;
@@ -116,8 +106,13 @@
       gap: 1.5rem;
     }
     .form-container, .chart-container {
-      max-width: 100%;
-      flex-basis: 100%;
+      width: 100% !important;
+      flex-shrink: 1;
+      flex-grow: 0;
+      height: auto !important;
+    }
+    .chart-container {
+      height: 280px;
     }
     h1 {
       font-size: 1.5rem;
@@ -217,7 +212,6 @@
 
     const ctx = document.getElementById('rootPriceChart').getContext('2d');
 
-    // Jika chart sudah ada, destroy dulu biar update data
     if(chartInstance) {
       chartInstance.destroy();
     }
@@ -229,7 +223,7 @@
         datasets: [{
           label: 'Harga Root (IDR)',
           data: data,
-          borderColor: '#00ffff', // cyan biru terang
+          borderColor: '#00ffff',
           backgroundColor: 'rgba(0, 255, 255, 0.15)',
           fill: true,
           tension: 0.3,
@@ -301,7 +295,7 @@
     const rates = [0.008, 0.0075];
     const table = document.getElementById('rateTable');
     const tbody = document.getElementById('rateTableBody');
-    tbody.innerHTML = ""; // reset
+    tbody.innerHTML = "";
     table.style.display = "table";
 
     rates.forEach(rate => {
