@@ -143,7 +143,7 @@
     <table id="rateTable" style="display:none;">
       <thead>
         <tr>
-          <th>Rate</th>
+          <th>Rate Season</th>
           <th>Harga Root (IDR)</th>
           <th>Point Root</th>
           <th>Hasil (IDR)</th>
@@ -292,18 +292,25 @@
       return;
     }
 
-    const rates = [0.008, 0.0075];
+    const rates = [
+      {season: "Season 1", rate: 0.04836736307},
+      {season: "Season 2", rate: 0.02224238341671483},
+      {season: "Season 3", rate: 0.01334201546533285},
+      {season: "Season 4 (predict)", rate: 0.008},
+      {season: "Season 4 (predict)", rate: 0.0075}
+    ];
+
     const table = document.getElementById('rateTable');
     const tbody = document.getElementById('rateTableBody');
     tbody.innerHTML = "";
     table.style.display = "table";
 
-    rates.forEach(rate => {
+    rates.forEach(({season, rate}) => {
       const hasil = totalBonus * rate * rootPrice;
       const tr = document.createElement('tr');
 
       tr.innerHTML = `
-        <td>${rate}</td>
+        <td>${season} (${rate.toFixed(10)})</td>
         <td>${rootPrice.toLocaleString('id-ID', {style:'currency', currency:'IDR'})}</td>
         <td>${totalBonus.toLocaleString()}</td>
         <td><b>${hasil.toLocaleString('id-ID', {style:'currency', currency:'IDR'})}</b></td>
