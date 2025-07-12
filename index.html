@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>RootRewards Calculator</title>
 <style>
-  /* ... sama seperti sebelumnya ... */
+  /* gaya sama seperti sebelumnya */
   * {
     box-sizing: border-box;
   }
@@ -165,27 +165,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Fungsi menghitung jumlah bonus deret dari hari ke startDay selama duration hari
-  // karena bonus per hari naik 25 per hari, kita hitung total deret aritmatika
-  function jumlahDeretBonus(startDay, duration) {
-    // misal mulai dari hari ke 3 dan durasi 5 hari
-    // bonus harian = 25 * hari (day index)
-    // jadi total = 25 * (startDay + startDay+1 + ... + startDay+duration-1)
-    let sum = 0;
-    for(let i = startDay; i < startDay + duration; i++) {
-      sum += i;
-    }
-    return 25 * sum;
+  function hitungBonusHari(hari) {
+    const tambahanTetap = 2000;
+    const bonusHarapan = 25 * hari;
+    const multiplierMap = {5: 1.5, 15: 3, 30: 5};
+    const multiplier = multiplierMap[hari] || 1;
+
+    return (tambahanTetap + bonusHarapan) * multiplier;
   }
 
   function hitungTotalBonus(startDay, duration, accounts) {
-    const tambahanTetapPerHari = 2000;
-
-    const totalTambahanTetap = tambahanTetapPerHari * duration;
-    const totalDeretBonus = jumlahDeretBonus(startDay, duration);
-    const totalBonus = (totalTambahanTetap + totalDeretBonus) * accounts;
-
-    return totalBonus;
+    let total = 0;
+    for (let hari = startDay; hari < startDay + duration; hari++) {
+      total += hitungBonusHari(hari);
+    }
+    return total * accounts;
   }
 
   async function fetchRootPrice() {
