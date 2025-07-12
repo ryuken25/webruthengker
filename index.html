@@ -130,8 +130,11 @@
   <div class="form-container">
     <h1>RootRewards Bonus Calculator</h1>
 
-    <label for="days">Jumlah Hari:</label>
-    <input type="number" id="days" min="1" value="1" />
+    <label for="startDay">Mulai dari Hari ke-:</label>
+    <input type="number" id="startDay" min="1" value="1" />
+
+    <label for="duration">Durasi (hari):</label>
+    <input type="number" id="duration" min="1" value="1" />
 
     <label for="accounts">Jumlah Akun:</label>
     <input type="number" id="accounts" min="1" value="1" />
@@ -161,19 +164,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  function hitungBonusPerHari(n) {
-    const bonusDasar = 25 * n;
+  // Fungsi hitung bonus per hari, multiplier hanya di hari 5, 15, 30
+  function hitungBonusPerHari(hari) {
+    const bonusDasar = 25;
     const tambahanTetap = 2000;
     const activity = 10;
-    const multiplierHari = {10: 1.5, 15: 3, 30: 5};
-    const multiplier = multiplierHari[n] || 1;
+    const multiplierHari = {5: 1.5, 15: 3, 30: 5};
+    const multiplier = multiplierHari[hari] || 1;
     const bonusNormal = bonusDasar + tambahanTetap;
     return bonusNormal * multiplier + activity;
   }
 
-  function hitungTotalBonus(days, accounts) {
+  // Hitung total bonus mulai dari hari ke startDay selama duration hari, dikali jumlah akun
+  function hitungTotalBonus(startDay, duration, accounts) {
     let total = 0;
-    for (let i = 1; i <= days; i++) {
+    for (let i = startDay; i < startDay + duration; i++) {
       total += hitungBonusPerHari(i);
     }
     return total * accounts;
@@ -271,11 +276,16 @@
   const resultDiv = document.getElementById("result");
 
   btn.addEventListener("click", async () => {
-    const days = parseInt(document.getElementById("days").value) || 1;
+    const startDay = parseInt(document.getElementById("startDay").value) || 1;
+    const duration = parseInt(document.getElementById("duration").value) || 1;
     const accounts = parseInt(document.getElementById("accounts").value) || 1;
 
-    if (days < 1) {
-      alert("Jumlah hari harus minimal 1.");
+    if (startDay < 1) {
+      alert("Mulai dari hari harus minimal 1.");
+      return;
+    }
+    if (duration < 1) {
+      alert("Durasi hari harus minimal 1.");
       return;
     }
     if (accounts < 1) {
@@ -283,8 +293,8 @@
       return;
     }
 
-    const totalBonus = hitungTotalBonus(days, accounts);
-    resultDiv.textContent = `Total bonus untuk ${accounts} akun selama ${days} hari adalah: ${totalBonus.toLocaleString()}`;
+    const totalBonus = hitungTotalBonus(startDay, duration, accounts);
+    resultDiv.textContent = `Total bonus untuk ${accounts} akun selama ${duration} hari mulai dari hari ke-${startDay} adalah: ${totalBonus.toLocaleString()}`;
 
     const rootPrice = await fetchRootPrice();
     if (rootPrice === null) {
