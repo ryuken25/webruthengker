@@ -164,24 +164,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Fungsi hitung bonus per hari, multiplier hanya di hari 5, 15, 30
-  function hitungBonusPerHari(hari) {
-    const bonusDasar = 25;
-    const tambahanTetap = 2000;
-    const activity = 10;
-    const multiplierHari = {5: 1.5, 15: 3, 30: 5};
-    const multiplier = multiplierHari[hari] || 1;
-    const bonusNormal = bonusDasar + tambahanTetap;
-    return bonusNormal * multiplier + activity;
-  }
-
-  // Hitung total bonus mulai dari hari ke startDay selama duration hari, dikali jumlah akun
   function hitungTotalBonus(startDay, duration, accounts) {
-    let total = 0;
-    for (let i = startDay; i < startDay + duration; i++) {
-      total += hitungBonusPerHari(i);
-    }
-    return total * accounts;
+    const bonusPerHari = 25;
+    const bonusTambahanAkhir = 25;
+
+    // Total bonus dasar: 25 poin x durasi hari
+    const totalBonusDasar = bonusPerHari * duration;
+    // Tambahan 25 poin di hari terakhir durasi
+    const totalBonus = (totalBonusDasar + bonusTambahanAkhir) * accounts;
+
+    return totalBonus;
   }
 
   async function fetchRootPrice() {
