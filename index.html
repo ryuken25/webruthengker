@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RootRewards Calculator</title>
+<title>RootRewards Bonus Calculator</title>
 <style>
   /* gaya sama seperti sebelumnya */
   * {
@@ -168,7 +168,12 @@
   function hitungBonusHari(hari) {
     const tambahanTetap = 2000;
     const bonusHarapan = 25 * hari;
-    const multiplierMap = {5: 1.5, 15: 3, 30: 5};
+    const multiplierMap = {
+      5: 1.5,
+      10: 2,
+      15: 3,
+      30: 5
+    };
     const multiplier = multiplierMap[hari] || 1;
 
     return (tambahanTetap + bonusHarapan) * multiplier;
